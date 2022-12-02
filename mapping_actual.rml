@@ -1,0 +1,252 @@
+﻿@prefix :<http://www.upm.es/ontology/eventsearcher#>.
+@prefix rr: <http://www.w3.org/ns/r2rml#>.
+@prefix sf:<http://www.opengis.net/ont/sf#>.
+@prefix rml: <http://semweb.mmlab.be/ns/rml#>.
+@prefix ql: <http://semweb.mmlab.be/ns/ql#>.
+@prefix transit: <http://vocab.org/transit/terms/>.
+@prefix xsd: <http://www.w3.org/2001/XMLSchema#>.
+@prefix foaf: <http://xmlns.com/foaf/0.1/>.
+@prefix geo: <http://www.opengis.net/ont/geosparql#>.
+@base <http://www.upm.es/ontology/eventsearcher#>. 
+
+
+<#LocalizacionCercanias> rml:logicalSource [ 
+      rml:source "https://raw.githubusercontent.com/pgomez-a/event_searcher/main/cercanias.csv"; 
+      rml:referenceFormulation ql:CSV
+    ];
+    rr:subjectMap [ 
+      rr:template "http://www.upm.es/resources/LC{INDEX}";
+      rr:termType rr:IRI;
+      rr:class :Localizacion
+    ];
+rr:predicateObjectMap [ 
+      rr:predicate :geometriaCoordenadas;  
+      rr:objectMap [rr:template "http://www.upm.es/resources/blanklc{INDEX}"; rr:termType rr:IRI;] 
+    ].
+
+<#GeometriaCercanias> rml:logicalSource [ 
+      rml:source "https://raw.githubusercontent.com/pgomez-a/event_searcher/main/cercanias.csv"; 
+      rml:referenceFormulation ql:CSV
+    ];
+    rr:subjectMap [ 
+      rr:template "http://www.upm.es/resources/blanklc{INDEX}";
+      rr:termType rr:IRI;
+      rr:class sf:Point
+    ];
+rr:predicateObjectMap [ 
+      rr:predicate geo:asWKT;  
+      rr:objectMap [ rr:template "POINT({LATITUD} {LONGITUD})"; rr:termType rr:Literal; rr:datatype geo:wktLiteral] 
+    ].
+
+<#ClaseCercanias> rml:logicalSource [ 
+      rml:source "https://raw.githubusercontent.com/pgomez-a/event_searcher/main/cercanias.csv"; 
+      rml:referenceFormulation ql:CSV
+    ];
+rr:subjectMap [ 
+      rr:template "http://www.upm.es/resources/C{CÓDIGO}";
+      rr:termType rr:IRI;
+      rr:class :Cercanias
+    ];
+rr:predicateObjectMap [ 
+      rr:predicate  :descripcion;  
+      rr:objectMap [ rml:reference "DESCRIPCION"; rr:termType rr:Literal;] 
+    ];
+rr:predicateObjectMap [ 
+      rr:predicate  :dir;  
+      rr:objectMap [ rml:reference "DIRECCIÓN"; rr:termType rr:Literal;] 
+    ];
+rr:predicateObjectMap [ 
+      rr:predicate  :estaEn;  
+      rr:objectMap [ rr:template "http://www.upm.es/resources/LC{INDEX}"; rr:termType rr:IRI;] 
+    ].
+
+<#ClaseMetro> rml:logicalSource [ 
+      rml:source "https://raw.githubusercontent.com/pgomez-a/event_searcher/main/metro.csv"; 
+      rml:referenceFormulation ql:CSV
+    ];
+rr:subjectMap [ 
+      rr:template "http://www.upm.es/resources/M{stop_code}";
+      rr:termType rr:IRI;
+      rr:class :Metro
+    ];
+rr:predicateObjectMap [ 
+      rr:predicate  :nombre;  
+      rr:objectMap [ rml:reference "stop_name"; rr:termType rr:Literal;] 
+    ];
+rr:predicateObjectMap [ 
+      rr:predicate  :dir;  
+      rr:objectMap [ rml:reference "stop_desc"; rr:termType rr:Literal;] 
+    ];
+rr:predicateObjectMap [ 
+      rr:predicate  :estaEn;  
+      rr:objectMap [ rr:template "http://www.upm.es/resources/LM{index}"; rr:termType rr:IRI;] 
+    ].
+
+<#LocalizacionMetro> rml:logicalSource [ 
+      rml:source "https://raw.githubusercontent.com/pgomez-a/event_searcher/main/metro.csv"; 
+      rml:referenceFormulation ql:CSV
+    ];
+    rr:subjectMap [ 
+      rr:template "http://www.upm.es/resources/LM{index}";
+      rr:termType rr:IRI;
+      rr:class :Localizacion
+    ];
+rr:predicateObjectMap [ 
+      rr:predicate :geometriaCoordenadas;  
+      rr:objectMap [rr:template "http://www.upm.es/resources/blanklm{index}"; rr:termType rr:IRI;] 
+    ].
+
+<#GeometriaMetro> rml:logicalSource [ 
+      rml:source "https://raw.githubusercontent.com/pgomez-a/event_searcher/main/metro.csv"; 
+      rml:referenceFormulation ql:CSV
+    ];
+    rr:subjectMap [ 
+      rr:template "http://www.upm.es/resources/blanklm{index}";
+      rr:termType rr:IRI;
+      rr:class sf:Point
+    ];
+rr:predicateObjectMap [ 
+      rr:predicate geo:asWKT;  
+      rr:objectMap [ rr:template "POINT({stop_lat} {stop_lon})"; rr:termType rr:Literal; rr:datatype geo:wktLiteral] 
+    ].
+
+<#ClaseEvento> rml:logicalSource [ 
+      rml:source "https://raw.githubusercontent.com/pgomez-a/event_searcher/main/eventos.csv"; 
+      rml:referenceFormulation ql:CSV
+    ];
+    rr:subjectMap [ 
+      rr:template "http://www.upm.es/resources/E{ID-EVENTO}";
+      rr:termType rr:IRI;
+      rr:class :Evento
+    ];
+rr:predicateObjectMap [ 
+      rr:predicate  :titulo;  
+      rr:objectMap [ rml:reference "TITULO"; rr:termType rr:Literal;] 
+    ];
+rr:predicateObjectMap [ 
+      rr:predicate  :precio;  
+      rr:objectMap [ rml:reference "PRECIO"; rr:termType rr:Literal;] 
+    ];
+rr:predicateObjectMap [ 
+      rr:predicate  :gratuito;  
+      rr:objectMap [ rml:reference "GRATUITO"; rr:termType rr:Literal;] 
+    ];
+rr:predicateObjectMap [ 
+      rr:predicate  :diasSemana;  
+      rr:objectMap [ rml:reference "DIAS-SEMANA"; rr:termType rr:Literal;] 
+    ];
+rr:predicateObjectMap [ 
+      rr:predicate  :fechaInicio;  
+      rr:objectMap [ rml:reference "FECHA"; rr:termType rr:Literal;] 
+    ];
+rr:predicateObjectMap [ 
+      rr:predicate  :fechaFin;  
+      rr:objectMap [ rml:reference "FECHA-FIN"; rr:termType rr:Literal;] 
+    ];
+rr:predicateObjectMap [ 
+      rr:predicate  :hora;  
+      rr:objectMap [ rml:reference "HORA"; rr:termType rr:Literal;] 
+    ];
+rr:predicateObjectMap [ 
+      rr:predicate  :descripcion;  
+      rr:objectMap [ rml:reference "DESCRIPCION"; rr:termType rr:Literal;] 
+    ];
+rr:predicateObjectMap [ 
+      rr:predicate  :barrio;  
+      rr:objectMap [ rml:reference "BARRIO-INSTALACION"; rr:termType rr:Literal;] 
+    ];
+rr:predicateObjectMap [ 
+      rr:predicate  :tipo;  
+      rr:objectMap [ rml:reference "TIPO"; rr:termType rr:Literal;] 
+    ];
+rr:predicateObjectMap [ 
+      rr:predicate  :realizadoEn;  
+      rr:objectMap [ rr:template "http://www.upm.es/resources/IE{INDEX}"; rr:termType rr:IRI;] 
+    ];
+ rr:predicateObjectMap [
+    rr:predicate :localesEnBarrio; 
+    rr:objectMap [ 
+      rr:parentTriplesMap <#ClaseLocal>;
+      rr:joinCondition [
+        rr:child "BARRIO-INSTALACION";  
+        rr:parent "desc_barrio_local";   
+      ];
+    ]
+  ] .
+
+<#ClaseInstalacion> rml:logicalSource [ 
+      rml:source "https://raw.githubusercontent.com/pgomez-a/event_searcher/main/eventos.csv"; 
+      rml:referenceFormulation ql:CSV
+    ];
+rr:subjectMap [ 
+      rr:template "http://www.upm.es/resources/IE{INDEX}";
+      rr:termType rr:IRI;
+      rr:class :Instalacion
+    ];
+rr:predicateObjectMap [ 
+      rr:predicate  :nombre;  
+      rr:objectMap [ rml:reference "NOMBRE-INSTALACION"; rr:termType rr:Literal;] 
+    ];
+rr:predicateObjectMap [ 
+      rr:predicate  :accesibilidad;  
+      rr:objectMap [ rml:reference "ACCESIBILIDAD-INSTALACION"; rr:termType rr:Literal;] 
+    ];
+rr:predicateObjectMap [ 
+      rr:predicate  :dir;  
+      rr:objectMap [ rml:reference "DIRECCION"; rr:termType rr:Literal;] 
+    ];
+rr:predicateObjectMap [ 
+      rr:predicate  :estaEn;  
+      rr:objectMap [ rr:template "http://www.upm.es/resources/LIE{INDEX}"; rr:termType rr:IRI;] 
+    ].
+
+<#LocalizacionInstalacion> rml:logicalSource [ 
+      rml:source "https://raw.githubusercontent.com/pgomez-a/event_searcher/main/eventos.csv"; 
+      rml:referenceFormulation ql:CSV
+    ];
+    rr:subjectMap [ 
+      rr:template "http://www.upm.es/resources/LIE{INDEX}";
+      rr:termType rr:IRI;
+      rr:class :Localizacion
+    ];
+rr:predicateObjectMap [ 
+      rr:predicate :geometriaCoordenadas;  
+      rr:objectMap [rr:template "http://www.upm.es/resources/blanklie{INDEX}"; rr:termType rr:IRI;] 
+    ].
+
+<#GeometriaInstalacion> rml:logicalSource [ 
+      rml:source "https://raw.githubusercontent.com/pgomez-a/event_searcher/main/eventos.csv"; 
+      rml:referenceFormulation ql:CSV
+    ];
+    rr:subjectMap [ 
+      rr:template "http://www.upm.es/resources/blanklie{INDEX}";
+      rr:termType rr:IRI;
+      rr:class sf:Point
+    ];
+rr:predicateObjectMap [ 
+      rr:predicate geo:asWKT;  
+      rr:objectMap [ rr:template "POINT({LATITUD} {LONGITUD})"; rr:termType rr:Literal; rr:datatype geo:wktLiteral] 
+    ].
+
+<#ClaseLocal>
+  rml:logicalSource [
+    rml:source "https://raw.githubusercontent.com/pgomez-a/event_searcher/main/actividades.csv" ;
+    rml:referenceFormulation ql:CSV
+  ] ;
+  rr:subjectMap [
+    rr:termType rr:IRI ;
+    rr:template "http://sample.com/resource/AE{index}" ;
+    rr:class :Local
+  ];
+rr:predicateObjectMap [ 
+      rr:predicate :dir;  
+      rr:objectMap [ rml:reference "direccion"; rr:termType rr:Literal;] 
+    ];
+rr:predicateObjectMap [ 
+      rr:predicate :rotulo;  
+      rr:objectMap [ rml:reference "rotulo"; rr:termType rr:Literal;] 
+    ];
+rr:predicateObjectMap [ 
+      rr:predicate :descripcion;  
+      rr:objectMap [ rml:reference "desc_epigrafe"; rr:termType rr:Literal;] 
+    ].

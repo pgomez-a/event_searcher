@@ -1,0 +1,175 @@
+@prefix : <http://www.upm.es/ontology/eventsearcher#> .
+@prefix owl: <http://www.w3.org/2002/07/owl#> .
+@prefix rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
+@prefix xml: <http://www.w3.org/XML/1998/namespace> .
+@prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
+@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
+@base <http://www.upm.es/ontology/eventsearcher#> .
+
+<http://www.upm.es/ontology/eventsearcher#> rdf:type owl:Ontology .
+
+#################################################################
+#    Object Properties
+#################################################################
+
+###  http://proyectoUPM#estaEn
+<http://proyectoUPM#estaEn> rdf:type owl:ObjectProperty ;
+			    rdfs:domain <http://www.upm.es/ontology/eventsearcher#Instalacion>, <http://www.upm.es/ontology/eventsearcher#Cercanias>, <http://www.upm.es/ontology/eventsearcher#Metro> ;
+			    rdfs:range <http://www.upm.es/ontology/eventsearcher#Localizacion> .
+
+###  http://proyectoUPM#realizadoEn
+<http://proyectoUPM#realizadoEn> rdf:type owl:ObjectProperty ;
+			    rdfs:domain <http://www.upm.es/ontology/eventsearcher#Evento> ;
+			    rdfs:range <http://www.upm.es/ontology/eventsearcher#Instalacion> .
+
+###  http://proyectoUPM#localesEnBarrio
+<http://proyectoUPM#localesEnBarrio> rdf:type owl:ObjectProperty ;
+			    rdfs:domain <http://www.upm.es/ontology/eventsearcher#Evento> ;
+			    rdfs:range <http://www.upm.es/ontology/eventsearcher#Local> .
+
+#################################################################
+#    Data properties
+#################################################################
+
+#####
+
+###  http://www.upm.es/ontology/eventsearcher#titulo
+<http://www.upm.es/ontology/eventsearcher#titulo> rdf:type owl:DatatypeProperty ;
+						  rdfs:domain <http://www.upm.es/ontology/eventsearcher#Evento> ;
+						  rdfs:range xsd:string .
+
+
+###  http://www.upm.es/ontology/eventsearcher#precio
+<http://www.upm.es/ontology/eventsearcher#precio> rdf:type owl:DatatypeProperty ;
+						  rdfs:domain <http://www.upm.es/ontology/eventsearcher#Evento> ;
+						  rdfs:range xsd:string .
+
+
+###  http://www.upm.es/ontology/eventsearcher#gratuito
+<http://www.upm.es/ontology/eventsearcher#gratuito> rdf:type owl:DatatypeProperty ;
+						    rdfs:domain <http://www.upm.es/ontology/eventsearcher#Evento> ;
+						    rdfs:range xsd:string .
+
+
+###  http://www.upm.es/ontology/eventsearcher#diasSemana
+<http://www.upm.es/ontology/eventsearcher#diasSemana> rdf:type owl:DatatypeProperty ;
+						      rdfs:domain <http://www.upm.es/ontology/eventsearcher#Evento> ;
+						      rdfs:range xsd:string .
+
+
+###  http://www.upm.es/ontology/eventsearcher#fechaInicio
+<http://www.upm.es/ontology/eventsearcher#fechaInicio> rdf:type owl:DatatypeProperty ;
+                                                       rdfs:domain <http://www.upm.es/ontology/eventsearcher#Evento> ;
+						       rdfs:range xsd:string .
+
+
+###  http://www.upm.es/ontology/eventsearcher#fechaFin
+<http://www.upm.es/ontology/eventsearcher#fechaFin> rdf:type owl:DatatypeProperty ;
+						    rdfs:domain <http://www.upm.es/ontology/eventsearcher#Evento> ;
+						    rdfs:range xsd:string .
+
+
+###  http://www.upm.es/ontology/eventsearcher#hora
+<http://www.upm.es/ontology/eventsearcher#hora> rdf:type owl:DatatypeProperty ;
+						rdfs:domain <http://www.upm.es/ontology/eventsearcher#Evento> ;
+						rdfs:range xsd:string .
+
+
+###  http://www.upm.es/ontology/eventsearcher#descripcion
+<http://www.upm.es/ontology/eventsearcher#descripcion> rdf:type owl:DatatypeProperty ;
+						       rdfs:domain <http://www.upm.es/ontology/eventsearcher#Evento> ;
+						       rdfs:range xsd:string .
+
+
+
+###  http://www.upm.es/ontology/eventsearcher#tipo 
+<http://www.upm.es/ontology/eventsearcher#tipo> rdf:type owl:DatatypeProperty ;
+						rdfs:domain <http://www.upm.es/ontology/eventsearcher#Evento> ;
+						rdfs:range xsd:string .
+
+####
+
+###  http://www.upm.es/ontology/eventsearcher#nombre 
+<http://www.upm.es/ontology/eventsearcher#nombre> rdf:type owl:DatatypeProperty ;
+						  rdfs:domain <http://www.upm.es/ontology/eventsearcher#Instalacion> ;
+					          rdfs:range xsd:string .
+
+###  http://www.upm.es/ontology/eventsearcher#accesibilidad 
+<http://www.upm.es/ontology/eventsearcher#accesibilidad> rdf:type owl:DatatypeProperty ;
+							 rdfs:domain <http://www.upm.es/ontology/eventsearcher#Instalacion> ;
+					       		 rdfs:range xsd:string .
+
+###  http://www.upm.es/ontology/eventsearcher#dir
+<http://www.upm.es/ontology/eventsearcher#dir> rdf:type owl:DatatypeProperty ;
+					       rdfs:domain <http://www.upm.es/ontology/eventsearcher#Instalacion> ;
+					       rdfs:range xsd:string .
+####
+
+###  http://www.upm.es/ontology/eventsearcher#dir
+<http://www.upm.es/ontology/eventsearcher#dir> rdf:type owl:DatatypeProperty ;
+					       rdfs:domain <http://www.upm.es/ontology/eventsearcher#Local> ;
+					       rdfs:range xsd:string .
+
+###  http://www.upm.es/ontology/eventsearcher#rotulo
+<http://www.upm.es/ontology/eventsearcher#rotulo> rdf:type owl:DatatypeProperty ;
+					       rdfs:domain <http://www.upm.es/ontology/eventsearcher#Local> ;
+					       rdfs:range xsd:string .
+
+###  http://www.upm.es/ontology/eventsearcher#descripcion
+<http://www.upm.es/ontology/eventsearcher#descripcion> rdf:type owl:DatatypeProperty ;
+					       rdfs:domain <http://www.upm.es/ontology/eventsearcher#Local> ;
+					       rdfs:range xsd:string .
+
+####
+
+###  http://www.upm.es/ontology/eventsearcher#descripcion
+<http://www.upm.es/ontology/eventsearcher#descripcion> rdf:type owl:DatatypeProperty ;
+					       rdfs:domain <http://www.upm.es/ontology/eventsearcher#Cercanias> ;
+					       rdfs:range xsd:string .
+
+
+###  http://www.upm.es/ontology/eventsearcher#dir
+<http://www.upm.es/ontology/eventsearcher#dir> rdf:type owl:DatatypeProperty ;
+					       rdfs:domain <http://www.upm.es/ontology/eventsearcher#Cercanias> ;
+					       rdfs:range xsd:string .
+
+####
+
+###  http://www.upm.es/ontology/eventsearcher#dir
+<http://www.upm.es/ontology/eventsearcher#dir> rdf:type owl:DatatypeProperty ;
+					       rdfs:domain <http://www.upm.es/ontology/eventsearcher#Metro> ;
+					       rdfs:range xsd:string .
+
+###  http://www.upm.es/ontology/eventsearcher#nombre
+<http://www.upm.es/ontology/eventsearcher#nombre> rdf:type owl:DatatypeProperty ;
+					       rdfs:domain <http://www.upm.es/ontology/eventsearcher#Metro> ;
+					       rdfs:range xsd:string .
+
+####
+
+###  http://www.upm.es/ontology/eventsearcher#geometriaCoordenadas
+<http://www.upm.es/ontology/eventsearcher#dir> rdf:type owl:DatatypeProperty ;
+					       rdfs:subPropertyOf <http://www.opengis.net/ont/geosparql#hasGeometry> .
+
+#################################################################
+#    Classes
+#################################################################
+
+###  http://www.upm.es/ontology/eventsearcher#Localizacion
+<http://www.upm.es/ontology/eventsearcher#Localizacion> rdf:type owl:Class ;
+                                  rdfs:subClassOf <http://www.opengis.net/ont/geosparql#Feature> .
+
+###  http://www.upm.es/ontology/eventsearcher#Evento
+<http://www.upm.es/ontology/eventsearcher#Evento> rdf:type owl:Class .
+
+###  http://www.upm.es/ontology/eventsearcher#Instalacion
+<http://www.upm.es/ontology/eventsearcher#Instalacion> rdf:type owl:Class .
+
+###  http://www.upm.es/ontology/eventsearcher#Cercanias
+<http://www.upm.es/ontology/eventsearcher#Cercanias> rdf:type owl:Class .
+
+###  http://www.upm.es/ontology/eventsearcher#Metro
+<http://www.upm.es/ontology/eventsearcher#Metro> rdf:type owl:Class .
+
+###  http://www.upm.es/ontology/eventsearcher#Local
+<http://www.upm.es/ontology/eventsearcher#Local> rdf:type owl:Class .                                                                
