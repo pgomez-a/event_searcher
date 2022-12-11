@@ -107,7 +107,7 @@ def animate_gif(window, count:int, start:int) -> None:
     '''
     Display the gif for the loading page.
     '''
-    if start < 5:
+    if start < 50:
         gif.config(image = frame_list[count])
         count +=1
         if count > last_frame:
