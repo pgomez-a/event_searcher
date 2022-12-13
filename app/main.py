@@ -246,37 +246,90 @@ def load_app(window):
     gif.place(relx=0.5, rely=0.5, anchor='center')
     return gif, frame_list, last_frame, None
 
+def search_event(events, entry, menu) -> None:
+    idx = entry.get()
+    men = menu.get()
+    if men and men != 'OPCIONES' and idx and idx.isdigit() and int(idx) > 0 and int(idx) <= len(events):
+        global event_mylist
+        global event_frame
+        if event_mylist:
+            event_mylist.pack_forget()
+            event_frame.pack_forget()
+        idx = int(idx) - 1
+        uri_evento = events[idx][0][1:-1]
+        out = obtener_info_instalaciones(rdf_graph, [rdflib.term.URIRef(uri_evento)])
+        event_frame = tk.Frame(root, width=48, height=17)
+        event_scrollbar = tk.Scrollbar(event_frame, orient='vertical')
+        event_mylist = tk.Listbox(event_frame, width=48, height=17, yscrollcommand=event_scrollbar.set)
+        event_scrollbar.config(command=event_mylist.yview)
+        event_scrollbar.pack(side='right', fill='y')
+        event_frame.pack(side='right')
+        event_mylist.insert('end', ' *** EVENTO ' + str(idx + 1) + ' ***')
+        if men == 'Instalación evento':
+            event_mylist.insert('end', ' *** INSTALACIÓN ***')
+            event_mylist.insert('end', ' Dirección: ' + out[0][1])
+            event_mylist.insert('end', ' Instalación: ' + out[0][2])
+            event_mylist.insert('end', ' Accesibilidad: ' + out[0][3])
+            event_mylist.insert('end', '')
+            event_mylist.pack(side='right')
+        elif men == 'Locales cercanos':
+            out = obtener_locales_barrio_evento(rdf_graph, [rdflib.term.URIRef(uri_evento)])
+            out = obtener_info_locales(rdf_graph, out)
+            event_mylist.insert('end', ' *** LOCALES CERCANOS ***')
+            for item in out:
+                event_mylist.insert('end', ' Dirección: ' + item[1])
+                event_mylist.insert('end', ' Descripción: ' + item[2])
+                event_mylist.insert('end', ' Nombre local: ' + item[3])
+                event_mylist.insert('end', '')
+            event_mylist.pack(side='right')
+        elif men == 'Transporte':
+            pass
+    return
+
 def print_event(events):
     if events:
         global eventscreen_image
         eventscreen_image = tk.PhotoImage(file='images/eventscreen.png')
         eventscreen_label = tk.Label(root, image=eventscreen_image)
         eventscreen_label.place(x=0, y=0, relwidth=1, relheight=1)
-        scrollbar = tk.Scrollbar(root)
-        scrollbar.pack(side="right", fill="y")
+        global frame
+        frame = tk.Frame(root, width=48)
+        scrollbar = tk.Scrollbar(frame, orient='vertical')
         global mylist
-        mylist = tk.Listbox(root, width=430, height=500, yscrollcommand = scrollbar.set )
-        mylist.insert('end', 'RESULTADOS DE LA BÚSQUEDA')
-        for idx, event in enumerate(events):
-            mylist.insert('end', '*** EVENTO ' + str(idx + 1) + ' ***')
-            mylist.insert('end', 'Título: ' + event[1])
-            mylist.insert('end', 'Precio: ' + event[2][:30])
-            mylist.insert('end', 'Gratuito: ' + event[3])
-            mylist.insert('end', 'Dias semana: ' + event[4])
-            mylist.insert('end', 'Fecha inicio: ' + event[5])
-            mylist.insert('end', 'Fecha fin: ' + event[6])
-            mylist.insert('end', 'Hora: ' + event[7])
-            mylist.insert('end', 'Descripción: ' + event[8][:30])
-            mylist.insert('end', 'Barrio: ' + event[9])
-            mylist.insert('end', 'Tipo: ' + event[10])
-            mylist.insert('end', '')
-            mylist.insert('end', '')
-        mylist.pack()
+        mylist = tk.Listbox(frame, width=48, yscrollcommand = scrollbar.set )
         scrollbar.config( command = mylist.yview )
-        event_but = tk.Button(root, text='BUSCAR EVENTO', command=lambda: open_menu(root))
-        event_but.place(relx=0.5, rely=0.6, anchor='center')
-    else:
-        open_menu(root)
+        scrollbar.pack(side='right', fill='y')
+        frame.pack(side='left', fill='y')
+        mylist.insert('end', ' RESULTADOS DE LA BÚSQUEDA')
+        for idx, event in enumerate(events):
+            mylist.insert('end', ' *** EVENTO ' + str(idx + 1) + ' ***')
+            mylist.insert('end', ' Título: ' + event[1][:45])
+            mylist.insert('end', ' Precio: ' + event[2][:45])
+            mylist.insert('end', ' Gratuito: ' + event[3][:45])
+            mylist.insert('end', ' Dias semana: ' + event[4])
+            mylist.insert('end', ' Fecha inicio: ' + event[5])
+            mylist.insert('end', ' Fecha fin: ' + event[6])
+            mylist.insert('end', ' Hora: ' + event[7])
+            mylist.insert('end', ' Descripción: ' + event[8][:45])
+            mylist.insert('end', ' Barrio: ' + event[9][:45])
+            mylist.insert('end', ' Tipo: ' + event[10][:45])
+            mylist.insert('end', '')
+            mylist.insert('end', '')
+        mylist.pack(side='left', fill='y')
+        message = tk.Label(root, text='Evento número (1-'+str(len(events))+'):')
+        message.place(relx=0.72, rely=0.05, anchor='center')
+        entry = tk.Entry(root, width=3)
+        entry.place(relx=0.84, rely=0.05, anchor='center')
+        entry_options = ['Instalación evento', 'Locales cercanos', 'Transporte']
+        global entry_inside
+        entry_inside = tk.StringVar(root)
+        entry_inside.set('OPCIONES')
+        entry_menu = tk.OptionMenu(root, entry_inside, *entry_options)
+        entry_menu.place(relx=0.75, rely=0.10, anchor='center')
+        event_but = tk.Button(root, text='BUSCAR EVENTO', command=lambda: search_event(events, entry, entry_inside))
+        event_but.place(relx=0.75, rely=0.16, anchor='center')
+        menu_but = tk.Button(root, text='VOLVER AL MENÚ PRINCIPAL', command=lambda: open_menu(root))
+        menu_but.place(relx=0.75, rely=0.95, anchor='center')
     return
 
 def gratuito_event(event) -> None:
@@ -332,6 +385,7 @@ def open_menu(window) -> None:
     '''
     if mylist:
         mylist.pack_forget()
+        frame.pack_forget()
     global menuscreen_image
     menuscreen_image = tk.PhotoImage(file='images/menuscreen.png')
     menuscreen_label = tk.Label(window, image=menuscreen_image)
@@ -388,8 +442,8 @@ def animate_gif(window, count:int, start:int) -> None:
         titlescreen_image = tk.PhotoImage(file='images/titlescreen.png')
         titlescreen_label = tk.Label(window, image=titlescreen_image)
         titlescreen_label.place(x=0, y=0, relwidth=1, relheight=1)
-        event_but = tk.Button(window, text='BUSCAR EVENTO', command=lambda: open_menu(window))
-        event_but.place(relx=0.5, rely=0.6, anchor='center')
+        menu_but = tk.Button(window, text='BUSCAR EVENTO', command=lambda: open_menu(window))
+        menu_but.place(relx=0.5, rely=0.6, anchor='center')
     return
 
 if __name__ == '__main__':
@@ -411,6 +465,9 @@ if __name__ == '__main__':
 
     global mylist
     mylist = None
+
+    global event_mylist
+    event_mylist = None
 
     root = tk.Tk()
     config_root(root, title='ESearcher', width=860, height=500)
