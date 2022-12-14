@@ -4,6 +4,7 @@ from rdflib.namespace import GEO
 import pandas as pd
 import tkinter as tk
 from tkcalendar import DateEntry
+from SPARQLWrapper import SPARQLWrapper, JSON
 
 
 def buscador_evento_por_barrio(graph, barrio):
@@ -74,22 +75,27 @@ def buscador_evento_por_instalacion(graph, instalacion):
 
   return result_list
 
-def buscador_evento_por_accesibilidad(graph, accesibilidad):
-  q_evento = prepareQuery('''
-  SELECT 
-    ?Subject
-  WHERE { 
-    ?Subject esearch:realizadoEn ?Instalacion.
-    ?Instalacion esearch:accesibilidad ?Accesibilidad.
-  }
-  ''',
-  initNs = { "esearch": ESEARCH})
-
-  result_list = []
-  for r in graph.query(q_evento, initBindings = {'?Accesibilidad' : rdflib.Literal(str(list(str(accesibilidad))))}):
-    result_list.append(r.Subject)
-
-  return result_list
+def buscador_evento_por_accesibilidad(accesibilidad):
+    string_query = """
+          PREFIX geosp: <http://www.opengis.net/ont/geosparql#>
+          PREFIX opgs: <http://www.opengis.net/def/uom/OGC/1.0/>
+          PREFIX geof: <http://www.opengis.net/def/function/geosparql/>
+          PREFIX geo: <http://www.w3.org/2003/01/geo/wgs84_pos#>
+          PREFIX esearch: <http://www.upm.es/ontology/eventsearcher#>
+          SELECT distinct * where {
+          ?Subject esearch:realizadoEn ?Instalacion.
+          ?Instalacion esearch:accesibilidad "['""" + accesibilidad + """']" .}
+          """
+    sparql.setQuery(string_query)
+    try:
+        ret = sparql.queryAndConvert()
+        results_list = []
+        for r in ret["results"]["bindings"]:
+            results_list.append(r["Subject"]["value"])
+        results_list = [rdflib.term.URIRef(uri) for uri in results_list]
+        return results_list
+    except Exception as e:
+        print(e)
 
 def buscador_evento_por_fecha_exacta(graph, fecha):
   q_fechas = prepareQuery('''
@@ -134,6 +140,70 @@ def obtener_locales_barrio_evento(graph, lista_eventos_resultado):
 
   return result_list
 
+# Búsqueda de paradas de metro a menos de 1 km de radio.
+def obtener_metros_cercanos(uri_evento):
+    string_query = """
+        PREFIX geosp: <http://www.opengis.net/ont/geosparql#>
+        PREFIX opgs: <http://www.opengis.net/def/uom/OGC/1.0/>
+        PREFIX geof: <http://www.opengis.net/def/function/geosparql/>
+        PREFIX geo: <http://www.w3.org/2003/01/geo/wgs84_pos#>
+        PREFIX esearch: <http://www.upm.es/ontology/eventsearcher#>
+        SELECT distinct ?Metro ?coordenadas1 ?coordenadas2 ?distance where {
+        <""" + uri_evento + """> esearch:realizadoEn ?Instalacion.
+            ?Instalacion esearch:estaEn ?Localizacion1.
+            ?Localizacion1 esearch:geometriaCoordenadas ?Punto1.
+            ?Punto1 geosp:asWKT ?coordenadas1.
+
+            ?Metro ?clase esearch:Metro.
+            ?Metro esearch:estaEn ?Localizacion2.
+            ?Localizacion2 esearch:geometriaCoordenadas ?Punto2.
+            ?Punto2 geosp:asWKT ?coordenadas2.
+
+
+        BIND(geof:distance(?coordenadas1, ?coordenadas2) AS ?distance).
+        FILTER(?distance < 0.01).}
+        """
+    sparql.setQuery(string_query)
+    try:
+        ret = sparql.queryAndConvert()
+        results_list = []
+        for r in ret["results"]["bindings"]:
+            results_list.append(r["Metro"]["value"])
+        return results_list
+    except Exception as e:
+        print(e)
+
+# Búsqueda de las 2 paradas de cercanias más cercanas.
+def obtener_cercanias_cercanos(uri_evento):
+    string_query = """
+        PREFIX geosp: <http://www.opengis.net/ont/geosparql#>
+        PREFIX opgs: <http://www.opengis.net/def/uom/OGC/1.0/>
+        PREFIX geof: <http://www.opengis.net/def/function/geosparql/>
+        PREFIX geo: <http://www.w3.org/2003/01/geo/wgs84_pos#>
+        PREFIX esearch: <http://www.upm.es/ontology/eventsearcher#>
+        SELECT distinct ?Cercanias ?coordenadas1 ?coordenadas2 ?distance where {
+        <""" + uri_evento + """> esearch:realizadoEn ?Instalacion.
+            ?Instalacion esearch:estaEn ?Localizacion1.
+            ?Localizacion1 esearch:geometriaCoordenadas ?Punto1.
+            ?Punto1 geosp:asWKT ?coordenadas1.
+
+            ?Cercanias ?clase esearch:Cercanias.
+            ?Cercanias esearch:estaEn ?Localizacion2.
+            ?Localizacion2 esearch:geometriaCoordenadas ?Punto2.
+            ?Punto2 geosp:asWKT ?coordenadas2.
+
+
+        BIND(geof:distance(?coordenadas1, ?coordenadas2) AS ?distance).} ORDER BY ?distance LIMIT 2
+        """
+    sparql.setQuery(string_query)
+    try:
+        ret = sparql.queryAndConvert()
+        results_list = []
+        for r in ret["results"]["bindings"]:
+            results_list.append(r["Cercanias"]["value"])
+        return results_list
+    except Exception as e:
+        print(e)
 
 def obtener_info_evento(graph, results_list):
   q_evento = prepareQuery('''
@@ -205,9 +275,46 @@ def obtener_info_instalaciones(graph, results_list):
   return result_list
 
 
-#for acc in lista_accesibilidad:
-  #print(buscador_evento_por_accesibilidad(rdf_graph, acc)) #1.6 no funciona
+def obtener_info_metros(graph, results_list):
+    q_metro = prepareQuery('''
+    SELECT 
+        ?Metro ?Nombre ?Direccion
+    WHERE { 
+        ?Metro ?tipo esearch:Metro.
+        ?Metro esearch:nombre ?Nombre.
+        ?Metro esearch:dir ?Direccion.
 
+    }
+    ''',
+    initNs={"esearch": ESEARCH})
+
+    result_list = []
+    for ele in results_list:
+        for r in graph.query(q_metro, initBindings={'?Metro': ele}):
+            result_list.append((r.Metro.n3(), r.Direccion.value, r.Nombre.value))
+
+    return result_list
+
+
+def obtener_info_cercanias(graph, results_list):
+    q_cercanias = prepareQuery('''
+    SELECT 
+        ?Cercanias ?Nombre ?Direccion
+    WHERE { 
+        ?Cercanias ?tipo esearch:Cercanias.
+        ?Cercanias esearch:descripcion ?Nombre.
+        ?Cercanias esearch:dir ?Direccion.
+
+    }
+    ''',
+    initNs={"esearch": ESEARCH})
+
+    result_list = []
+    for ele in results_list:
+        for r in graph.query(q_cercanias, initBindings={'?Cercanias': ele}):
+            result_list.append((r.Cercanias.n3(), r.Direccion.value, r.Nombre.value))
+
+    return result_list
 
 def config_root(window, title:str, width:int, height:int, resizable=True) -> None:
     '''
@@ -269,7 +376,14 @@ def search_event(events, entry, menu) -> None:
             event_mylist.insert('end', ' *** INSTALACIÓN ***')
             event_mylist.insert('end', ' Dirección: ' + out[0][1])
             event_mylist.insert('end', ' Instalación: ' + out[0][2])
-            event_mylist.insert('end', ' Accesibilidad: ' + out[0][3])
+            print(out[0][3])
+            if out[0][3] == "['1']":
+                event_mylist.insert('end', ' Accesibilidad: ' + 'baja')
+            if out[0][3] == "['1.6']":
+                event_mylist.insert('end', ' Accesibilidad: ' + 'media')
+            if out[0][3] == "['3']":
+                event_mylist.insert('end', ' Accesibilidad: ' + 'alta')
+
             event_mylist.insert('end', '')
             event_mylist.pack(side='right')
         elif men == 'Locales cercanos':
@@ -278,12 +392,27 @@ def search_event(events, entry, menu) -> None:
             event_mylist.insert('end', ' *** LOCALES CERCANOS ***')
             for item in out:
                 event_mylist.insert('end', ' Dirección: ' + item[1])
-                event_mylist.insert('end', ' Descripción: ' + item[2])
-                event_mylist.insert('end', ' Nombre local: ' + item[3])
+                event_mylist.insert('end', ' Nombre local: ' + item[2])
+                event_mylist.insert('end', ' Descripción: ' + item[3])
                 event_mylist.insert('end', '')
             event_mylist.pack(side='right')
         elif men == 'Transporte':
-            pass
+            out = obtener_metros_cercanos(uri_evento)
+            out = obtener_info_metros(rdf_graph,[rdflib.term.URIRef(metro) for metro in out])
+            out_2 = obtener_cercanias_cercanos(uri_evento)
+            out_2 = obtener_info_cercanias(rdf_graph,[rdflib.term.URIRef(cercanias) for cercanias in out_2])
+            event_mylist.insert('end', ' *** METROS A MENOS DE 1km ***')
+            for item in out:
+                event_mylist.insert('end', ' Dirección: ' + item[1])
+                event_mylist.insert('end', ' Nombre: ' + item[2])
+                event_mylist.insert('end', '')
+            event_mylist.insert('end', ' *** TOP 2 CERCANÍAS MÁS CERCANOS ***')
+            for item in out_2:
+                event_mylist.insert('end', ' Dirección: ' + item[1])
+                event_mylist.insert('end', ' Nombre: ' + item[2])
+                event_mylist.insert('end', '')
+            event_mylist.pack(side='right')
+
     return
 
 def print_event(events):
@@ -305,7 +434,10 @@ def print_event(events):
             mylist.insert('end', ' *** EVENTO ' + str(idx + 1) + ' ***')
             mylist.insert('end', ' Título: ' + event[1][:45])
             mylist.insert('end', ' Precio: ' + event[2][:45])
-            mylist.insert('end', ' Gratuito: ' + event[3][:45])
+            if event[3][:45] == '0' :
+                mylist.insert('end', ' Gratuito: ' + 'no/dato no introducido')
+            else:
+                mylist.insert('end', ' Gratuito: ' + 'sí')
             mylist.insert('end', ' Dias semana: ' + event[4])
             mylist.insert('end', ' Fecha inicio: ' + event[5])
             mylist.insert('end', ' Fecha fin: ' + event[6])
@@ -351,7 +483,7 @@ def barrio_event(event) -> None:
 
 def accesibilidad_event(event) -> None:
     val = acc_inside.get()
-    out = buscador_evento_por_accesibilidad(rdf_graph, val)
+    out = buscador_evento_por_accesibilidad(val)
     out = obtener_info_evento(rdf_graph, out)
     print_event(out)
     return
@@ -447,12 +579,14 @@ def animate_gif(window, count:int, start:int) -> None:
     return
 
 if __name__ == '__main__':
+    sparql = SPARQLWrapper(
+        "http://MacBook-Pro-de-Pablo-2.local:7200/repositories/esearcher")
+    sparql.setReturnFormat(JSON)
+
     rdf_graph = rdflib.Graph()
     rdf_graph.parse('data.txt', format='turtle')
 
     ESEARCH = rdflib.Namespace('http://www.upm.es/ontology/eventsearcher#')
-    GEOF = rdflib.Namespace('http://www.opengis.net/def/function/geosparql/')
-    OPGS = rdflib.Namespace('http://www.opengis.net/def/uom/OGC/1.0/')
 
     lista_barrios = ['CHOPERA', 'EL SALVADOR', 'CORTES', 'PALOS DE MOGUER', 'LOS JERONIMOS', 'RECOLETOS', 'UNIVERSIDAD']
     lista_tipos = ['ProgramacionDestacadaAgendaCultura', 'CursosTalleres', '-', 'JOBO', 'TeatroPerformance', 'DanzaBaile',
