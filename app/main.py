@@ -376,7 +376,6 @@ def search_event(events, entry, menu) -> None:
             event_mylist.insert('end', ' *** INSTALACIÓN ***')
             event_mylist.insert('end', ' Dirección: ' + out[0][1])
             event_mylist.insert('end', ' Instalación: ' + out[0][2])
-            print(out[0][3])
             if out[0][3] == "['1']":
                 event_mylist.insert('end', ' Accesibilidad: ' + 'baja')
             if out[0][3] == "['1.6']":
