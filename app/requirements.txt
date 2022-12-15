@@ -1,0 +1,6 @@
+rdflib
+pandas
+tk
+tkcalendar
+SPARQLWrapper
+jsonschema
